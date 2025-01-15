@@ -98,29 +98,45 @@ public class PathFollower {
 		//Checks that robot is not approaching the last point
 		if (path.pathLength() != wayPoint + 2) {
 			//Finds if the circle intersects with the next line/path
-			Pose2D next = PursuitMath.waypointCalc
-					(obj, look, path.getPt(wayPoint + 1), path.getPt(wayPoint + 2));
+			Pose2D next = PursuitMath.waypointCalc(
+					obj,
+					look,
+					path.getPt(wayPoint + 1),
+					path.getPt(wayPoint + 2)
+			);
+
 			//If circle intersects with next line then robot can start approaching the next point
-			if (!Double.isNaN(next.x)) {
+			if (next.x == next.x) {
 				wayPoint++;
 				return next;
 			}
 		}
 
 		//Finds a point for robot to approach
-		Pose2D target = PursuitMath.waypointCalc
-				(obj, look, path.getPt(wayPoint), path.getPt(wayPoint + 1));
+		Pose2D target = PursuitMath.waypointCalc (
+				obj,
+				look,
+				path.getPt(wayPoint),
+				path.getPt(wayPoint + 1)
+		);
+		if(approachingLast() &&
+				Math.abs(Math.hypot(getLastPoint().x-obj.x, getLastPoint().y-obj.y))<look){
+			target = getLastPoint();
+		}
 
-		//Moves straight to next point if PP math is returning NaN values (circle and line do not intersect)
-		if (Double.isNaN(target.x)) { //Magic the gathering
+		//Moves straight to next point if math returns NaN values (circle and line do not intersect)
+		if (target.x != target.x) {
 			target = path.getPt(wayPoint + 1);
 		}
 
-		//If robot is within its margin of error, move to next point
-		if(Math.abs(path.getPt(wayPoint+1).h-obj.h) <= headingError &&
-				Math.hypot(target.x-obj.x, target.y-obj.y) <= translationError)
-			wayPoint+=1;
+		double angleError = path.getPt(wayPoint+1).h-obj.h;
+		angleError = (angleError + Math.PI) % (2 * Math.PI) - Math.PI;
 
+		//If robot is within its margin of error, move to next point
+		if(Math.abs(path.getPt(wayPoint + 1).h - obj.h) <= headingError &&
+				Math.hypot(target.x - obj.x, target.y - obj.y) <= translationError) {
+			wayPoint += 1;
+		}
 		return target;
 	}
 
